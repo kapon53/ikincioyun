@@ -18,7 +18,7 @@ user-select: none;
 -webkit-user-select: none;
 -webkit-touch-callout: none;
 touch-action: none;
-}
+} 
 
 #heart-wrapper {
 position: relative;
@@ -29,11 +29,11 @@ width: 250px;
 height: 250px;
 cursor: pointer;
 transition: transform 0.1s linear;
-}
+} 
 
 .beating {
 animation: heartbeat 1.2s infinite;
-}
+} 
 
 @keyframes heartbeat {
 0% { transform: scale(1); }
@@ -42,7 +42,7 @@ animation: heartbeat 1.2s infinite;
 30% { transform: scale(1.15); }
 40% { transform: scale(1); }
 100% { transform: scale(1); }
-}
+} 
 
 #heart-text {
 position: absolute;
@@ -53,7 +53,7 @@ color: #ff0000;
 font-size: 16px;
 pointer-events: none;
 z-index: 10;
-}
+} 
 
 /* FİNAL YAZISI VE GÜM-GÜM ATMA ANİMASYONU */
 #final-message {
@@ -69,11 +69,11 @@ pointer-events: none;
 width: 90%;
 padding: 0 10px;
 box-sizing: border-box;
-}
+} 
 
 .text-beating {
 animation: textHeartbeat 1.2s infinite;
-}
+} 
 
 @keyframes textHeartbeat {
 0% { transform: scale(1); }
@@ -82,7 +82,7 @@ animation: textHeartbeat 1.2s infinite;
 30% { transform: scale(1.12); }
 40% { transform: scale(1); }
 100% { transform: scale(1); }
-}
+} 
 
 #dialog-screen {
 display: none;
@@ -96,7 +96,7 @@ background-color: #ffe6f2;
 z-index: 100;
 padding: 20px;
 box-sizing: border-box;
-}
+} 
 
 #dialog-text {
 color: #ff0000;
@@ -104,7 +104,7 @@ text-align: center;
 margin-bottom: 25px;
 font-size: 24px;
 font-weight: bold;
-}
+} 
 
 .dialog-btn {
 background-color: #28a745;
@@ -118,11 +118,11 @@ font-weight: bold;
 transition: transform 0.1s;
 margin: 8px;
 box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-}
+} 
 
 .dialog-btn:active {
 transform: scale(0.92);
-}
+} 
 
 #dialog-buttons {
 display: flex;
@@ -132,14 +132,14 @@ align-items: center;
 </style>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
-<body>
+<body> 
 
 <div id="dialog-screen">
 <div id="dialog-text"></div>
 <div id="dialog-buttons"></div>
-</div>
+</div> 
 
-<div id="final-message">BENDE SENİ ÇOK SEVİYORUM AŞKIMMM İYİ Kİ VARSINN ❤️</div>
+<div id="final-message">BENDE SENİ ÇOK SEVİYORUM AŞKIMMM İYİ Kİ VARSINN ❤️</div> 
 
 <div id="heart-wrapper" class="beating">
 <svg viewBox="0 0 100 100" width="100%" height="100%">
@@ -153,37 +153,37 @@ align-items: center;
 fill="url(#fill-gradient)" stroke="#ff0000" stroke-width="2"/>
 </svg>
 <div id="heart-text">Beni ne kadar seviyorsun? (Basılı Tut)</div>
-</div>
+</div> 
 
 <script>
 const wrapper = document.getElementById('heart-wrapper');
 const stop1 = document.getElementById('fill-stop1');
 const stop2 = document.getElementById('fill-stop2');
 const text = document.getElementById('heart-text');
-const finalMsg = document.getElementById('final-message');
+const finalMsg = document.getElementById('final-message'); 
 
 const dialogScreen = document.getElementById('dialog-screen');
 const dialogText = document.getElementById('dialog-text');
-const dialogButtons = document.getElementById('dialog-buttons');
+const dialogButtons = document.getElementById('dialog-buttons'); 
 
 let holdTimer;
 let progress = 0;
 let isFinished = false;
-let isDialogActive = false;
+let isDialogActive = false; 
 
 function startFilling(e) {
-if (isFinished || isDialogActive) return;
+if (isFinished || isDialogActive) return; 
 
 clearInterval(holdTimer);
-wrapper.classList.remove('beating');
+wrapper.classList.remove('beating'); 
 
 holdTimer = setInterval(() => {
 let step = 0.3;
 if (progress > 60) step = 0.12;
 if (progress > 80) step = 0.05;
-if (progress > 95) step = 0.015;
+if (progress > 95) step = 0.015; 
 
-progress += step;
+progress += step; 
 
 if (Math.random() < 0.25) {
 confetti({
@@ -198,7 +198,7 @@ scalar: 0.5,
 ticks: 45,
 zIndex: -1
 });
-}
+} 
 
 if (progress >= 100) {
 progress = 100;
@@ -206,13 +206,13 @@ finishAnimation();
 }
 updateHeart();
 }, 30);
-}
+} 
 
 function stopFilling() {
 if (isFinished) return;
-clearInterval(holdTimer);
+clearInterval(holdTimer); 
 
-if (isDialogActive) return;
+if (isDialogActive) return; 
 
 if (progress > 5 && progress < 100) {
 isDialogActive = true;
@@ -222,67 +222,67 @@ progress = 0;
 updateHeart();
 wrapper.classList.add('beating');
 }
-}
+} 
 
 function showDialog(step) {
 wrapper.style.display = 'none';
-dialogScreen.style.display = 'flex';
+dialogScreen.style.display = 'flex'; 
 
 if (step === 1) {
 dialogText.innerHTML = "Ne yani bu kadar mı???? hiç sevmiyorsun yanii";
-dialogButtons.innerHTML = <button class="dialog-btn" onclick="showDialog(2)"&gt;evet bu kadar seviyorum mlsf&lt;/button>;
+dialogButtons.innerHTML = '<button class="dialog-btn" onclick="showDialog(2)">evet bu kadar seviyorum mlsf</button>';
 }
 else if (step === 2) {
 dialogText.innerHTML = "OHAAAAAA";
-dialogButtons.innerHTML = <button class="dialog-btn" onclick="showDialog(3)"&gt;özür dilerim 😞&lt;/button>;
+dialogButtons.innerHTML = '<button class="dialog-btn" onclick="showDialog(3)">özür dilerim 😞</button>';
 }
 else if (step === 3) {
 dialogText.innerHTML = "ÖYLE OLSUN HIH";
-dialogButtons.innerHTML = <button class="dialog-btn" onclick="showDialog(4)"&gt;Ya elim kaydı özür dilerimm🥺&lt;/button>;
+dialogButtons.innerHTML = '<button class="dialog-btn" onclick="showDialog(4)">Ya elim kaydı özür dilerimm🥺</button>';
 }
 else if (step === 4) {
 dialogText.innerHTML = "HMMM";
-dialogButtons.innerHTML = <button class="dialog-btn" onclick="showDialog(5)"&gt;Hıhı&lt;/button>;
+dialogButtons.innerHTML = '<button class="dialog-btn" onclick="showDialog(5)">Hıhı</button>';
 }
 else if (step === 5) {
 dialogText.innerHTML = "O zaman tekrar göster😝";
-dialogButtons.innerHTML = <button class="dialog-btn" onclick="showDialog(6)"&gt;🥹&lt;/button>;
+dialogButtons.innerHTML = '<button class="dialog-btn" onclick="showDialog(6)">🥹</button>';
 }
 else if (step === 6) {
 dialogScreen.style.display = 'none';
 wrapper.style.display = 'flex';
 progress = 0;
 updateHeart();
-wrapper.classList.add('beating');
+wrapper.classList.add('beating'); 
 
 setTimeout(() => { isDialogActive = false; }, 100);
 }
-}
+} 
 
 function updateHeart() {
 stop1.setAttribute("offset", progress + "%");
-stop2.setAttribute("offset", progress + "%");
+stop2.setAttribute("offset", progress + "%"); 
 
 let scaleValue = 1 + (progress / 100) * 1.5;
-wrapper.style.transform = scale(${scaleValue});
+wrapper.style.transform = `scale(${scaleValue})`; 
 
 if(progress > 50) {
 text.style.color = "white";
 } else {
 text.style.color = "#ff0000";
 }
-}
+} 
 
 function finishAnimation() {
 isFinished = true;
-clearInterval(holdTimer);
+clearInterval(holdTimer); 
 
 // Kalbi tamamen gizle ki üst üste binmesin
-wrapper.style.display = 'none';
+wrapper.style.display = 'none'; 
 
 // Yazıyı göster ve kalp atışı gibi gümletmeye başla
 finalMsg.style.opacity = 1;
-finalMsg.classList.add('text-beating');
+finalMsg.classList.add('text-beating'); 
 
 confetti({
 particleCount: 250,
@@ -290,21 +290,13 @@ spread: 120,
 origin: { y: 0.6 },
 colors: ['#ff0000', '#ffffff', '#cc0000']
 });
-}
+} 
 
 wrapper.addEventListener("pointerdown", startFilling);
 window.addEventListener("pointerup", stopFilling);
 window.addEventListener("pointercancel", stopFilling);
-window.addEventListener("contextmenu", function(e) { e.preventDefault(); });
+window.addEventListener("contextmenu", function(e) { e.preventDefault(); }); 
 
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
