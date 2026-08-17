@@ -1,302 +1,512 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>İrem 1</title>
-<style>
-body {
-font-family: 'Segoe UI', sans-serif;
-display: flex;
-justify-content: center;
-align-items: center;
-height: 100vh;
-background-color: #ffe6f2;
-margin: 0;
-overflow: hidden;
-user-select: none;
--webkit-user-select: none;
--webkit-touch-callout: none;
-touch-action: none;
-} 
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kapon | Kalp Oyunu</title>
+    <!-- Konfeti Kütüphanesi -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        /* --- GENEL SİTE VE KABUK AYARLARI --- */
+        body {
+            background-color: #050505; /* Portfolyo karanlık teması */
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0 0 50px 0;
+            box-sizing: border-box;
+            overflow-x: hidden; /* Sadece yatay kaymayı engelle, dikey serbest */
+        }
 
-#heart-wrapper {
-position: relative;
-display: flex;
-justify-content: center;
-align-items: center;
-width: 250px;
-height: 250px;
-cursor: pointer;
-transition: transform 0.1s linear;
-} 
+        /* --- GERİ DÖN BUTONU --- */
+        .back-nav {
+            width: 100%;
+            background: rgba(0,0,0,0.9);
+            padding: 15px 25px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-sizing: border-box;
+            margin-bottom: 30px;
+        }
+        .back-btn {
+            background: transparent;
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+            border: 2px solid #333;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            font-size: 0.9em;
+        }
+        .back-btn:hover {
+            border-color: #b026ff;
+            color: #b026ff;
+            box-shadow: 0 0 10px rgba(176,38,255,0.3);
+        }
 
-.beating {
-animation: heartbeat 1.2s infinite;
-} 
+        /* --- KALP OYUNU ÖZEL ÇERÇEVESİ --- */
+        #heart-game-area {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 600px;
+            background-color: #ffe6f2; /* Senin orijinal pembe rengin */
+            border-radius: 16px;
+            border: 2px solid #ff3366;
+            box-shadow: 0 10px 40px rgba(255, 51, 102, 0.2);
+            margin-bottom: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            
+            /* Seçimi engelleme kuralları sadece bu kutu içinde geçerli */
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+            touch-action: none;
+        }
 
-@keyframes heartbeat {
-0% { transform: scale(1); }
-10% { transform: scale(1.15); }
-20% { transform: scale(1); }
-30% { transform: scale(1.15); }
-40% { transform: scale(1); }
-100% { transform: scale(1); }
-} 
+        /* --- KALP OYUNU ORİJİNAL CSS KODLARI --- */
+        #heart-wrapper {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 250px;
+            height: 250px;
+            cursor: pointer;
+            transition: transform 0.1s linear;
+        } 
+        .beating { animation: heartbeat 1.2s infinite; } 
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            10% { transform: scale(1.15); }
+            20% { transform: scale(1); }
+            30% { transform: scale(1.15); }
+            40% { transform: scale(1); }
+            100% { transform: scale(1); }
+        } 
+        #heart-text {
+            position: absolute;
+            width: 140px;
+            text-align: center;
+            font-weight: bold;
+            color: #ff0000;
+            font-size: 16px;
+            pointer-events: none;
+            z-index: 10;
+        } 
+        #final-message {
+            position: absolute;
+            font-size: 2.2em;
+            color: #ff0000;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+            text-align: center;
+            z-index: 50;
+            pointer-events: none;
+            width: 90%;
+            padding: 0 10px;
+            box-sizing: border-box;
+        } 
+        .text-beating { animation: textHeartbeat 1.2s infinite; } 
+        @keyframes textHeartbeat {
+            0% { transform: scale(1); }
+            10% { transform: scale(1.12); }
+            20% { transform: scale(1); }
+            30% { transform: scale(1.12); }
+            40% { transform: scale(1); }
+            100% { transform: scale(1); }
+        } 
+        #dialog-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: absolute; /* Artık ekranı değil, heart-game-area'yı kaplayacak */
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: #ffe6f2;
+            z-index: 100;
+            padding: 20px;
+            box-sizing: border-box;
+        } 
+        #dialog-text {
+            color: #ff0000;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 24px;
+            font-weight: bold;
+        } 
+        .dialog-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.1s;
+            margin: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        } 
+        .dialog-btn:active { transform: scale(0.92); } 
+        #dialog-buttons { display: flex; flex-direction: column; align-items: center; }
 
-#heart-text {
-position: absolute;
-width: 140px;
-text-align: center;
-font-weight: bold;
-color: #ff0000;
-font-size: 16px;
-pointer-events: none;
-z-index: 10;
-} 
+        /* --- YORUM SİSTEMİ CSS --- */
+        .comments-section { width: 100%; max-width: 900px; margin: 0 auto; padding: 0 20px; box-sizing: border-box; }
+        .comments-header { font-size: 1.5em; margin-bottom: 20px; color: #fff; font-weight: bold; }
+        .comment-input-area { display: flex; gap: 15px; margin-bottom: 40px; }
+        .comment-avatar { width: 45px; height: 45px; border-radius: 50%; background: linear-gradient(45deg, #b026ff, #ff3366); display: flex; justify-content: center; align-items: center; font-weight: bold; color: #fff; font-size: 1.2em; flex-shrink: 0; }
+        .comment-input-wrapper { flex-grow: 1; display: flex; flex-direction: column; align-items: flex-end; }
+        .comment-textarea { width: 100%; background: transparent; border: none; border-bottom: 2px solid #444; color: #fff; font-size: 1em; padding: 5px 0; resize: none; outline: none; transition: border-color 0.3s; font-family: inherit; }
+        .comment-textarea:focus { border-bottom-color: #fff; }
+        .submit-btn { margin-top: 10px; padding: 8px 20px; background: #b026ff; color: #fff; border: none; border-radius: 20px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        .submit-btn:hover { background: #9015db; }
+        .comment-list { display: flex; flex-direction: column; gap: 25px; }
+        .comment-item { display: flex; gap: 15px; }
+        .comment-content { flex-grow: 1; }
+        .comment-author { font-weight: bold; color: #fff; font-size: 0.95em; margin-bottom: 3px; display: flex; gap: 10px; align-items: center; }
+        .comment-date { font-weight: normal; color: #777; font-size: 0.85em; }
+        .comment-text { color: #ddd; font-size: 0.95em; line-height: 1.5; margin-bottom: 8px; }
+        .comment-actions { display: flex; gap: 15px; align-items: center; margin-bottom: 15px; }
+        .action-btn { background: transparent; border: none; color: #aaa; cursor: pointer; font-size: 0.9em; display: flex; align-items: center; gap: 5px; transition: color 0.2s; padding: 0; }
+        .action-btn:hover { color: #fff; }
+        .reply-box { display: none; margin-bottom: 15px; margin-top: -5px; }
+        .replies-container { margin-left: 55px; border-left: 2px solid #333; padding-left: 15px; display: flex; flex-direction: column; gap: 15px; }
+        .reply-item { display: flex; gap: 12px; }
+        .reply-avatar { width: 35px; height: 35px; font-size: 1em; }
 
-/* FİNAL YAZISI VE GÜM-GÜM ATMA ANİMASYONU */
-#final-message {
-position: absolute;
-font-size: 2.2em;
-color: #ff0000;
-font-weight: bold;
-opacity: 0;
-transition: opacity 0.8s ease;
-text-align: center;
-z-index: 50;
-pointer-events: none;
-width: 90%;
-padding: 0 10px;
-box-sizing: border-box;
-} 
-
-.text-beating {
-animation: textHeartbeat 1.2s infinite;
-} 
-
-@keyframes textHeartbeat {
-0% { transform: scale(1); }
-10% { transform: scale(1.12); }
-20% { transform: scale(1); }
-30% { transform: scale(1.12); }
-40% { transform: scale(1); }
-100% { transform: scale(1); }
-} 
-
-#dialog-screen {
-display: none;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-position: absolute;
-top: 0; left: 0;
-width: 100%; height: 100%;
-background-color: #ffe6f2;
-z-index: 100;
-padding: 20px;
-box-sizing: border-box;
-} 
-
-#dialog-text {
-color: #ff0000;
-text-align: center;
-margin-bottom: 25px;
-font-size: 24px;
-font-weight: bold;
-} 
-
-.dialog-btn {
-background-color: #28a745;
-color: white;
-border: none;
-padding: 15px 25px;
-font-size: 18px;
-border-radius: 10px;
-cursor: pointer;
-font-weight: bold;
-transition: transform 0.1s;
-margin: 8px;
-box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-} 
-
-.dialog-btn:active {
-transform: scale(0.92);
-} 
-
-#dialog-buttons {
-display: flex;
-flex-direction: column;
-align-items: center;
-}
-</style>
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+        @media (max-width: 768px) {
+            #heart-game-area {
+                height: 500px;
+                border-radius: 0;
+                border-left: none;
+                border-right: none;
+            }
+            #final-message { font-size: 1.5em; }
+            .back-nav { padding: 10px 15px; }
+            .back-btn { font-size: 0.8em; padding: 6px 10px; }
+        }
+    </style>
 </head>
-<body> 
+<body>
 
-<div id="dialog-screen">
-<div id="dialog-text"></div>
-<div id="dialog-buttons"></div>
-</div> 
+    <!-- 1. GERİ DÖN MENÜSÜ -->
+    <div class="back-nav">
+        <a href="https://kapon53.github.io/" class="back-btn">◄ Ana Sayfaya Dön</a>
+        <div style="color:#aaa; font-size: 0.9em;">Oynayan: <span id="nav-player-name" style="color:#fff; font-weight:bold;">Oyuncu</span></div>
+    </div>
 
-<div id="final-message">BENDE SENİ ÇOK SEVİYORUM AŞKIMMM İYİ Kİ VARSINN ❤️</div> 
+    <!-- 2. KALP OYUNU ÇERÇEVESİ -->
+    <div id="heart-game-area">
+        
+        <!-- Diyalog Ekranı -->
+        <div id="dialog-screen">
+            <div id="dialog-text"></div>
+            <div id="dialog-buttons"></div>
+        </div> 
 
-<div id="heart-wrapper" class="beating">
-<svg viewBox="0 0 100 100" width="100%" height="100%">
-<defs>
-<linearGradient id="fill-gradient" x1="0%" y1="100%" x2="0%" y2="0%">
-<stop id="fill-stop1" offset="0%" stop-color="#ff0000" />
-<stop id="fill-stop2" offset="0%" stop-color="transparent" />
-</linearGradient>
-</defs>
-<path d="M 50 90 C -30 40 10 -20 50 20 C 90 -20 130 40 50 90"
-fill="url(#fill-gradient)" stroke="#ff0000" stroke-width="2"/>
-</svg>
-<div id="heart-text">Beni ne kadar seviyorsun? (Basılı Tut)</div>
-</div> 
+        <!-- Final Yazısı -->
+        <div id="final-message">BEN DE SENİ ÇOK SEVİYORUM AŞKIMMM İYİ Kİ VARSINN ❤️</div> 
 
-<script>
-const wrapper = document.getElementById('heart-wrapper');
-const stop1 = document.getElementById('fill-stop1');
-const stop2 = document.getElementById('fill-stop2');
-const text = document.getElementById('heart-text');
-const finalMsg = document.getElementById('final-message'); 
+        <!-- Kalp ve İçindeki Yazı -->
+        <div id="heart-wrapper" class="beating">
+            <svg viewBox="0 0 100 100" width="100%" height="100%">
+                <defs>
+                    <linearGradient id="fill-gradient" x1="0%" y1="100%" x2="0%" y2="0%">
+                        <stop id="fill-stop1" offset="0%" stop-color="#ff0000" />
+                        <stop id="fill-stop2" offset="0%" stop-color="transparent" />
+                    </linearGradient>
+                </defs>
+                <path d="M 50 90 C -30 40 10 -20 50 20 C 90 -20 130 40 50 90" fill="url(#fill-gradient)" stroke="#ff0000" stroke-width="2"/>
+            </svg>
+            <div id="heart-text">Beni ne kadar seviyorsun? (Basılı Tut)</div>
+        </div> 
 
-const dialogScreen = document.getElementById('dialog-screen');
-const dialogText = document.getElementById('dialog-text');
-const dialogButtons = document.getElementById('dialog-buttons'); 
+    </div>
 
-let holdTimer;
-let progress = 0;
-let isFinished = false;
-let isDialogActive = false; 
+    <!-- 3. YORUM SİSTEMİ ALANI -->
+    <div class="comments-section">
+        <div class="comments-header" id="comment-count">0 Yorum</div>
+        
+        <div class="comment-input-area">
+            <div class="comment-avatar" id="current-user-avatar">?</div>
+            <div class="comment-input-wrapper">
+                <textarea id="main-comment-input" class="comment-textarea" rows="1" placeholder="Bu VIP alan hakkında ne düşünüyorsun?" oninput="this.style.height = '';this.style.height = this.scrollHeight + 'px'"></textarea>
+                <button class="submit-btn" onclick="postMainComment()">Yorum Yap</button>
+            </div>
+        </div>
 
-function startFilling(e) {
-if (isFinished || isDialogActive) return; 
+        <div class="comment-list" id="comment-list">
+            <!-- Yorumlar buraya JS ile gelecek -->
+        </div>
+    </div>
 
-clearInterval(holdTimer);
-wrapper.classList.remove('beating'); 
+    <!-- SCRIPT ALANI (OYUN + YORUM SİSTEMİ BİRLEŞİK) -->
+    <script>
+        // --- KALP OYUNU JS KODLARI ---
+        const wrapper = document.getElementById('heart-wrapper');
+        const stop1 = document.getElementById('fill-stop1');
+        const stop2 = document.getElementById('fill-stop2');
+        const text = document.getElementById('heart-text');
+        const finalMsg = document.getElementById('final-message'); 
 
-holdTimer = setInterval(() => {
-let step = 0.3;
-if (progress > 60) step = 0.12;
-if (progress > 80) step = 0.05;
-if (progress > 95) step = 0.015; 
+        const dialogScreen = document.getElementById('dialog-screen');
+        const dialogText = document.getElementById('dialog-text');
+        const dialogButtons = document.getElementById('dialog-buttons'); 
 
-progress += step; 
+        let holdTimer;
+        let progress = 0;
+        let isFinished = false;
+        let isDialogActive = false; 
 
-if (Math.random() < 0.25) {
-confetti({
-particleCount: 1,
-angle: 90,
-spread: 40,
-origin: { x: 0.5, y: 0.65 },
-colors: ['#ff0000', '#ff8080', '#ffffff'],
-startVelocity: 15 + Math.random() * 15,
-gravity: 0.8,
-scalar: 0.5,
-ticks: 45,
-zIndex: -1
-});
-} 
+        function startFilling(e) {
+            if (isFinished || isDialogActive) return; 
+            clearInterval(holdTimer);
+            wrapper.classList.remove('beating'); 
 
-if (progress >= 100) {
-progress = 100;
-finishAnimation();
-}
-updateHeart();
-}, 30);
-} 
+            holdTimer = setInterval(() => {
+                let step = 0.3;
+                if (progress > 60) step = 0.12;
+                if (progress > 80) step = 0.05;
+                if (progress > 95) step = 0.015; 
 
-function stopFilling() {
-if (isFinished) return;
-clearInterval(holdTimer); 
+                progress += step; 
 
-if (isDialogActive) return; 
+                if (Math.random() < 0.25) {
+                    confetti({
+                        particleCount: 1,
+                        angle: 90,
+                        spread: 40,
+                        origin: { x: 0.5, y: 0.65 }, // Kutu içinde daha dengeli patlaması için ayarlandı
+                        colors: ['#ff0000', '#ff8080', '#ffffff'],
+                        startVelocity: 15 + Math.random() * 15,
+                        gravity: 0.8,
+                        scalar: 0.5,
+                        ticks: 45,
+                        zIndex: 10 // Confetti arkada kalmasın diye yükseltildi
+                    });
+                } 
 
-if (progress > 5 && progress < 100) {
-isDialogActive = true;
-showDialog(1);
-} else {
-progress = 0;
-updateHeart();
-wrapper.classList.add('beating');
-}
-} 
+                if (progress >= 100) {
+                    progress = 100;
+                    finishAnimation();
+                }
+                updateHeart();
+            }, 30);
+        } 
 
-function showDialog(step) {
-wrapper.style.display = 'none';
-dialogScreen.style.display = 'flex'; 
+        function stopFilling() {
+            if (isFinished) return;
+            clearInterval(holdTimer); 
 
-if (step === 1) {
-dialogText.innerHTML = "Ne yani bu kadar mı???? hiç sevmiyorsun yanii";
-dialogButtons.innerHTML = '<button class="dialog-btn" onclick="showDialog(2)">evet bu kadar seviyorum mlsf</button>';
-}
-else if (step === 2) {
-dialogText.innerHTML = "OHAAAAAA";
-dialogButtons.innerHTML = '<button class="dialog-btn" onclick="showDialog(3)">özür dilerim 😞</button>';
-}
-else if (step === 3) {
-dialogText.innerHTML = "ÖYLE OLSUN HIH";
-dialogButtons.innerHTML = '<button class="dialog-btn" onclick="showDialog(4)">Ya elim kaydı özür dilerimm🥺</button>';
-}
-else if (step === 4) {
-dialogText.innerHTML = "HMMM";
-dialogButtons.innerHTML = '<button class="dialog-btn" onclick="showDialog(5)">Hıhı</button>';
-}
-else if (step === 5) {
-dialogText.innerHTML = "O zaman tekrar göster😝";
-dialogButtons.innerHTML = '<button class="dialog-btn" onclick="showDialog(6)">🥹</button>';
-}
-else if (step === 6) {
-dialogScreen.style.display = 'none';
-wrapper.style.display = 'flex';
-progress = 0;
-updateHeart();
-wrapper.classList.add('beating'); 
+            if (isDialogActive) return; 
 
-setTimeout(() => { isDialogActive = false; }, 100);
-}
-} 
+            if (progress > 5 && progress < 100) {
+                isDialogActive = true;
+                showDialog(1);
+            } else {
+                progress = 0;
+                updateHeart();
+                wrapper.classList.add('beating');
+            }
+        } 
 
-function updateHeart() {
-stop1.setAttribute("offset", progress + "%");
-stop2.setAttribute("offset", progress + "%"); 
+        function showDialog(step) {
+            wrapper.style.display = 'none';
+            dialogScreen.style.display = 'flex'; 
 
-let scaleValue = 1 + (progress / 100) * 1.5;
-wrapper.style.transform = `scale(${scaleValue})`; 
+            if (step === 1) {
+                dialogText.innerHTML = "Ne yani bu kadar mı???? hiç sevmiyorsun yanii";
+                dialogButtons.innerHTML = '<button class="dialog-btn" onclick="showDialog(2)">evet bu kadar seviyorum mlsf</button>';
+            }
+            else if (step === 2) {
+                dialogText.innerHTML = "OHAAAAAA";
+                dialogButtons.innerHTML = '<button class="dialog-btn" onclick="showDialog(3)">özür dilerim 😞</button>';
+            }
+            else if (step === 3) {
+                dialogText.innerHTML = "ÖYLE OLSUN HIH";
+                dialogButtons.innerHTML = '<button class="dialog-btn" onclick="showDialog(4)">Ya elim kaydı özür dilerimm🥺</button>';
+            }
+            else if (step === 4) {
+                dialogText.innerHTML = "HMMM";
+                dialogButtons.innerHTML = '<button class="dialog-btn" onclick="showDialog(5)">Hıhı</button>';
+            }
+            else if (step === 5) {
+                dialogText.innerHTML = "O zaman tekrar göster😝";
+                dialogButtons.innerHTML = '<button class="dialog-btn" onclick="showDialog(6)">🥹</button>';
+            }
+            else if (step === 6) {
+                dialogScreen.style.display = 'none';
+                wrapper.style.display = 'flex';
+                progress = 0;
+                updateHeart();
+                wrapper.classList.add('beating'); 
+                setTimeout(() => { isDialogActive = false; }, 100);
+            }
+        } 
 
-if(progress > 50) {
-text.style.color = "white";
-} else {
-text.style.color = "#ff0000";
-}
-} 
+        function updateHeart() {
+            stop1.setAttribute("offset", progress + "%");
+            stop2.setAttribute("offset", progress + "%"); 
+            let scaleValue = 1 + (progress / 100) * 1.5;
+            wrapper.style.transform = `scale(${scaleValue})`; 
+            if(progress > 50) { text.style.color = "white"; } 
+            else { text.style.color = "#ff0000"; }
+        } 
 
-function finishAnimation() {
-isFinished = true;
-clearInterval(holdTimer); 
+        function finishAnimation() {
+            isFinished = true;
+            clearInterval(holdTimer); 
+            wrapper.style.display = 'none'; 
+            finalMsg.style.opacity = 1;
+            finalMsg.classList.add('text-beating'); 
 
-// Kalbi tamamen gizle ki üst üste binmesin
-wrapper.style.display = 'none'; 
+            confetti({
+                particleCount: 250,
+                spread: 120,
+                origin: { y: 0.6 },
+                colors: ['#ff0000', '#ffffff', '#cc0000'],
+                zIndex: 100
+            });
+        } 
 
-// Yazıyı göster ve kalp atışı gibi gümletmeye başla
-finalMsg.style.opacity = 1;
-finalMsg.classList.add('text-beating'); 
+        wrapper.addEventListener("pointerdown", startFilling);
+        window.addEventListener("pointerup", stopFilling);
+        window.addEventListener("pointercancel", stopFilling);
+        window.addEventListener("contextmenu", function(e) { e.preventDefault(); }); 
 
-confetti({
-particleCount: 250,
-spread: 120,
-origin: { y: 0.6 },
-colors: ['#ff0000', '#ffffff', '#cc0000']
-});
-} 
 
-wrapper.addEventListener("pointerdown", startFilling);
-window.addEventListener("pointerup", stopFilling);
-window.addEventListener("pointercancel", stopFilling);
-window.addEventListener("contextmenu", function(e) { e.preventDefault(); }); 
+        // --- YORUM SİSTEMİ JS KODLARI ---
+        let currentUser = localStorage.getItem("kapon_username") || "GizemliOyuncu";
+        document.getElementById('nav-player-name').textContent = currentUser;
+        document.getElementById('current-user-avatar').textContent = currentUser.charAt(0).toUpperCase();
 
-</script>
+        // VIP alana özel varsayılan yorum
+        let commentsData = [
+            { 
+                id: 1, author: "Geliştirici_Efe", text: "Bu bölümün tasarımı çok tatlı olmuş! Eline sağlık.", date: "1 gün önce", likes: 12, 
+                replies: [] 
+            }
+        ];
+
+        window.renderComments = () => {
+            const list = document.getElementById('comment-list');
+            list.innerHTML = "";
+            document.getElementById('comment-count').textContent = `${commentsData.length} Yorum`;
+
+            commentsData.forEach(comment => {
+                let repliesHtml = "";
+                if(comment.replies.length > 0) {
+                    repliesHtml += `<div class="replies-container">`;
+                    comment.replies.forEach(reply => {
+                        repliesHtml += `
+                            <div class="reply-item">
+                                <div class="comment-avatar reply-avatar" style="background: #333;">${reply.author.charAt(0).toUpperCase()}</div>
+                                <div class="comment-content">
+                                    <div class="comment-author">${reply.author} <span class="comment-date">${reply.date}</span></div>
+                                    <div class="comment-text">${reply.text}</div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    repliesHtml += `</div>`;
+                }
+
+                const html = `
+                    <div class="comment-item">
+                        <div class="comment-avatar" style="background: #222;">${comment.author.charAt(0).toUpperCase()}</div>
+                        <div class="comment-content">
+                            <div class="comment-author">${comment.author} <span class="comment-date">${comment.date}</span></div>
+                            <div class="comment-text">${comment.text}</div>
+                            <div class="comment-actions">
+                                <button class="action-btn" onclick="toggleBtnVal(this)">👍 <span>${comment.likes}</span></button>
+                                <button class="action-btn" onclick="toggleBtnVal(this)">👎 <span>0</span></button>
+                                <button class="action-btn" onclick="toggleReplyBox(${comment.id})">Yanıtla</button>
+                            </div>
+                            
+                            <div class="reply-box" id="reply-box-${comment.id}">
+                                <div class="comment-input-area" style="margin-bottom:0;">
+                                    <div class="comment-avatar reply-avatar" style="background: linear-gradient(45deg, #b026ff, #ff3366);">${currentUser.charAt(0).toUpperCase()}</div>
+                                    <div class="comment-input-wrapper">
+                                        <textarea id="reply-input-${comment.id}" class="comment-textarea" rows="1" placeholder="Yanıt ekle..."></textarea>
+                                        <button class="submit-btn" onclick="postReply(${comment.id})">Yanıtı Gönder</button>
+                                    </div>
+                                </div>
+                            </div>
+                            ${repliesHtml}
+                        </div>
+                    </div>
+                `;
+                list.innerHTML += html;
+            });
+        };
+
+        window.postMainComment = () => {
+            const input = document.getElementById('main-comment-input');
+            const text = input.value.trim();
+            if(text === "") return;
+
+            commentsData.unshift({
+                id: Date.now(),
+                author: currentUser,
+                text: text,
+                date: "Az önce",
+                likes: 0,
+                replies: []
+            });
+
+            input.value = "";
+            input.style.height = "auto";
+            renderComments();
+        };
+
+        window.toggleReplyBox = (id) => {
+            const box = document.getElementById(`reply-box-${id}`);
+            box.style.display = box.style.display === "block" ? "none" : "block";
+        };
+
+        window.postReply = (commentId) => {
+            const input = document.getElementById(`reply-input-${commentId}`);
+            const text = input.value.trim();
+            if(text === "") return;
+
+            const comment = commentsData.find(c => c.id === commentId);
+            if(comment) {
+                comment.replies.push({
+                    id: Date.now(),
+                    author: currentUser,
+                    text: text,
+                    date: "Az önce"
+                });
+                renderComments();
+            }
+        };
+
+        window.toggleBtnVal = (btn) => {
+            let span = btn.querySelector('span');
+            let val = parseInt(span.textContent);
+            if(btn.style.color === "rgb(176, 38, 255)") { 
+                btn.style.color = "#aaa"; span.textContent = val - 1;
+            } else { 
+                btn.style.color = "#b026ff"; span.textContent = val + 1;
+            }
+        };
+
+        renderComments();
+    </script>
 </body>
 </html>
